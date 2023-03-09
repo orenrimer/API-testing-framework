@@ -1,13 +1,13 @@
 import json
 import requests
 from requests_oauthlib import OAuth1
-from src.config import HOST_CONFIG
+from config import HOST_CONFIG
 from src.utils.credentialUtils import CredentialUtils
 
 
 class RequestUtils:
     def __init__(self):
-        self.base_url = HOST_CONFIG['localhost']
+        self.base_url = HOST_CONFIG['local']
         self.auth = OAuth1(client_key=CredentialUtils.get_wc_api_credentials()['key'],
                            client_secret=CredentialUtils.get_wc_api_credentials()['secret'])
 

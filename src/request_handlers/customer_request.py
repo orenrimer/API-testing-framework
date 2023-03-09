@@ -1,4 +1,4 @@
-from src.utils.genericUtils import generate_random_email, generate_random_password
+from src.utils.genericUtils import generate_random_email
 from src.utils.requestUtils import RequestUtils
 
 
@@ -6,15 +6,17 @@ class CustomerHandler:
     def __init__(self):
         self.requests = RequestUtils()
 
-    def create_customer(self, email=None, password=None, expected_status_code=201, **kwargs):
-        if not email:
-            email = generate_random_email()
-        if not password:
-            password = generate_random_password()
+    def create_customer(self, payload=None, expected_status_code=201):
+        email = generate_random_email()
 
-        payload = {'email': email, 'password': password}
-        payload.update(kwargs)
-
+        if payload:
+            if not isinstance(payload, dict):
+                raise TypeError('Invalid payload, can not create customer.')
+            if "email" not in payload:
+                payload["email"] = email
+        else:
+            # we must pass an email when creating a new customer
+            payload = {"email": email}
         customer_json = self.requests.post(endpoint='customers', payload=payload,
                                            expected_status_code=expected_status_code)
         return customer_json

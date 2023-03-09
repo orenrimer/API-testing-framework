@@ -1,5 +1,3 @@
-from src.request_handlers.customer_request import CustomerHandler
-from src.db_handlers.customer_db import CustomerDB
 import logging
 import pytest
 
@@ -8,9 +6,8 @@ pytestmark = [pytest.mark.customers, pytest.mark.smoke]
 
 class TestGetCustomerSmoke:
     @pytest.fixture()
-    def setup(self):
-        self.customer_handler = CustomerHandler()
-        self.customer_db = CustomerDB()
+    def setup(self, customer_setup):
+        self.customer_handler, self.customer_db = customer_setup
 
     @pytest.mark.tcid12
     def test_get_existing_customer(self, setup):
@@ -24,7 +21,7 @@ class TestGetCustomerSmoke:
         customer_id = customer_db[0]['ID']
         response_json = self.customer_handler.get_customer_by_id(customer_id)
         assert response_json['id'] == customer_id, logging.error(f"expected customer 'id': {customer_id} "
-                                                                f"got {response_json['id']}")
+                                                                 f"got {response_json['id']}")
 
     @pytest.mark.tcid13
     def test_get_non_existing_customer(self, setup):
@@ -40,7 +37,7 @@ class TestGetCustomerSmoke:
         # incrementing the last customer ID result in a non-existing customer ID
         customer_id = customer_db[0]['ID'] + 1
         response_json = self.customer_handler.get_customer_by_id(customer_id, expected_status_code=404)
-        assert 'code' in response_json and response_json['code'] == "woocommerce_rest_invalid_id",\
+        assert 'code' in response_json and response_json['code'] == "woocommerce_rest_invalid_id", \
             logging.error(f"expected response code 'woocommerce_rest_invalid_id'")
 
     @pytest.mark.tcid14

@@ -6,12 +6,17 @@ class ProductHandler:
     def __init__(self):
         self.requests = RequestUtils()
 
-    def create_product(self, name=None, **kwargs):
-        if not name:
-            name = generate_random_string(prefix='product')
+    def create_product(self, payload=None):
+        name = generate_random_string(prefix='product')
 
-        payload = {"name": name}
-        payload.update(kwargs)
+        if payload:
+            if not isinstance(payload, dict):
+                raise TypeError('Invalid payload, can not create product.')
+            if "name" not in payload:
+                payload["name"] = name
+        else:
+            # we must pass a product name when creating a new product
+            payload = {"name": name}
         product_json = self.requests.post(endpoint='products', payload=payload)
         return product_json
 
@@ -36,8 +41,8 @@ class ProductHandler:
         return all_products
 
     def update_product(self, product_id, payload=None, expected_status_code=200):
-        if payload:
-            assert isinstance(payload, dict)
+        if payload and not isinstance(payload, dict):
+            raise Exception('Invalid payload')
         return self.requests.put(endpoint=f'products/{product_id}',
                                  expected_status_code=expected_status_code, payload=payload)
 

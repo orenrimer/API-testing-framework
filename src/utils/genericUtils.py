@@ -1,5 +1,8 @@
+import json
+import os
 import random
 import string
+from config import PATH_CONFIG
 
 
 def generate_random_string(prefix=None, suffix=None, length=10):
@@ -9,12 +12,6 @@ def generate_random_string(prefix=None, suffix=None, length=10):
     elif suffix:
         random_string += str(suffix)
     return random_string
-
-
-def generate_random_email_and_password(domain=None, prefix=None):
-    random_email = generate_random_email(domain=domain, prefix=prefix)
-    random_password = generate_random_password()
-    return random_email, random_password
 
 
 def generate_random_email(domain=None, prefix=None):
@@ -33,3 +30,13 @@ def generate_random_password():
     password_length = 16
     password_string = "".join(random.choices(string.ascii_letters, k=password_length))
     return password_string
+
+
+def read_data_from_json(file_name):
+    file_path = os.path.join(PATH_CONFIG['TEST_DATA'], file_name)
+
+    data = {}
+    with open(file_path) as f:
+        data.update(json.load(f))
+
+    return data

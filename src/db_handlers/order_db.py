@@ -1,34 +1,36 @@
 from src.utils.dbUtils import DbUtils
-from src.config import DB_CONFIG
+from config import DB_CONFIG
 
 
 class OrderDB:
     def __init__(self):
         self.db = DbUtils()
-        self.ORDER_TABLE_NAME = f"{DB_CONFIG['localhost']['table_prefix']}woocommerce_order_items"
-        self.ORDER_ITEMS_TABLE_NAME = f"{DB_CONFIG['localhost']['table_prefix']}woocommerce_order_itemmeta"
-        self.ORDER_STATS_TABLE_NAME = f"{DB_CONFIG['localhost']['table_prefix']}wc_order_stats"
+        self.ORDER_TABLE_NAME = f"{DB_CONFIG['local']['table_prefix']}woocommerce_order_items"
+        self.ORDER_ITEMS_TABLE_NAME = f"{DB_CONFIG['local']['table_prefix']}woocommerce_order_itemmeta"
+        self.ORDER_STATS_TABLE_NAME = f"{DB_CONFIG['local']['table_prefix']}wc_order_stats"
 
     def select_order_by_order_id(self, order_id):
         """
             select an order from the db using a given order id
         """
-        sql = f"SELECT * FROM {DB_CONFIG['localhost']['database']}.{self.ORDER_TABLE_NAME} WHERE order_id={order_id};"
+        sql = f"SELECT * FROM {DB_CONFIG['local']['database']}.{self.ORDER_TABLE_NAME} WHERE order_id={order_id};"
         return self.db.select(sql)
 
     def select_order_status(self, order_id):
         """
             select an order from the db using a given customer id
         """
-        sql = f"SELECT * FROM {DB_CONFIG['localhost']['database']}.{self.ORDER_STATS_TABLE_NAME} WHERE order_id={order_id};"
+        sql = f"SELECT * FROM {DB_CONFIG['local']['database']}.{self.ORDER_STATS_TABLE_NAME} WHERE order_id={order_id};"
         return self.db.select(sql)
 
     def select_order_products_by_order_id(self, order_id):
         """
             select all the products that have been purchased in a given order
         """
-        sql = f"SELECT * FROM {DB_CONFIG['localhost']['database']}.{self.ORDER_TABLE_NAME} natural join" \
-              f" {DB_CONFIG['localhost']['database']}.{self.ORDER_ITEMS_TABLE_NAME} WHERE order_id={order_id};"
+        sql = f"SELECT * " \
+              f"FROM {DB_CONFIG['local']['database']}.{self.ORDER_TABLE_NAME} natural join " \
+              f"{DB_CONFIG['local']['database']}.{self.ORDER_ITEMS_TABLE_NAME} " \
+              f"WHERE order_id={order_id} and order_item_type='line_item';"
         data = self.db.select(sql)
 
         items = {}

@@ -25,13 +25,13 @@ class OrderHandler:
         return all_products
 
     def create_order(self, payload=None, expected_status_code=201):
-        if payload:
-            assert isinstance(payload, dict)
+        if payload and not isinstance(payload, dict):
+            raise TypeError('Invalid payload, can not create order.')
         return self.requests.post(endpoint='orders', payload=payload, expected_status_code=expected_status_code)
 
     def update_order(self, order_id, payload=None, expected_status_code=200):
-        if payload:
-            assert isinstance(payload, dict)
+        if payload and not isinstance(payload, dict):
+            raise TypeError('Invalid payload, can not update order.')
         return self.requests.put(endpoint=f'orders/{order_id}', payload=payload,
                                  expected_status_code=expected_status_code)
 

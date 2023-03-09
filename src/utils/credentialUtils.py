@@ -1,17 +1,23 @@
-from secret import API_CRED, DB_CRED
+import os
 
 
 class CredentialUtils:
     @staticmethod
     def get_wc_api_credentials():
-        if 'WC_KEY' not in API_CRED or 'WC_SECRET' not in API_CRED:
-            raise Exception("API key or secret not found")
+        wc_key = os.environ.get('WC_KEY')
+        wc_secret = os.environ.get('WC_SECRET')
+
+        if not wc_key or not wc_secret:
+            raise Exception("API key or secret not in env")
         else:
-            return {'key': API_CRED['WC_KEY'], 'secret': API_CRED['WC_SECRET']}
+            return {'key': wc_key, 'secret': wc_secret}
 
     @staticmethod
     def get_db_credentials():
-        if 'DB_USER' not in DB_CRED or 'DB_PASSWORD' not in DB_CRED:
-            raise Exception("DB credentials not not found")
+        db_user = os.environ.get('DB_USER')
+        db_password = os.environ.get('DB_PASSWORD')
+
+        if not db_user or db_password is None:
+            raise Exception("DB credentials not in env")
         else:
-            return {'user': DB_CRED['DB_USER'], 'password': DB_CRED['DB_PASSWORD']}
+            return {'user': db_user, 'password': db_password}

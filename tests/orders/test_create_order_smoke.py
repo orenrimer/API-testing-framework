@@ -1,36 +1,41 @@
 import logging
 import random
 import pytest
-from src.db_handlers.order_db import OrderDB
-from src.db_handlers.customer_db import CustomerDB
-from src.db_handlers.product_db import ProductDB
-from src.request_handlers.customer_request import CustomerHandler
-from src.request_handlers.order_request import OrderHandler
+from src.utils.genericUtils import read_data_from_json
 
 pytestmark = [pytest.mark.orders, pytest.mark.smoke]
 
 
 class TestCreateOrdersSmoke:
     @pytest.fixture()
-    def setup(self):
-        self.product_db = ProductDB()
-        self.order_db = OrderDB()
-        self.order_handler = OrderHandler()
-        self.customer_handler = CustomerHandler()
-        self.customer_db = CustomerDB()
+    def setup(self, order_setup, product_setup, customer_setup):
+        self.order_handler, self.order_db = order_setup
+        _, self.product_db = product_setup
+        self.customer_handler,  self.customer_db = customer_setup
 
     @pytest.mark.tcid15
     def test_create_order_as_guest(self, setup):
         logging.info("TEST::create an order with a guest account")
 
-        # add random items to the order payload
-        random_products = self.product_db.select_random_product(2)
-        items = [{'product_id': product['ID'], 'quantity': random.randint(1, 10)} for product in random_products]
-        response_json = self.order_handler.create_order(payload={"line_items": items})
+        # load test data from file
+        payload = read_data_from_json('create_order_payload.json')
 
+        # add random items to the order payload
+        random_products = self.product_db.select_random_product()
+        items = [{'product_id': product['ID'], 'quantity': random.randint(1, 10)} for product in random_products]
+        payload.update({"line_items": items})
+        response_json = None
+
+        try:
+            response_json = self.order_handler.create_order(payload=payload)
+        except TypeError:
+            logging.error(TypeError)
+            pytest.fail()
+
+        # verify order and products
         self.verify_order_created(response_json['id'], items)
 
-        # delete the order and the new customer
+        # delete the test order
         self.order_handler.delete_order(response_json['id'])
         assert not self.order_db.select_order_by_order_id(response_json['id'])
 
@@ -38,27 +43,38 @@ class TestCreateOrdersSmoke:
     def test_create_order_with_new_user(self, setup):
         logging.info("TEST::create an order with a new user account")
 
-        # create a new customer
-        new_customer_json = self.customer_handler.create_customer()
-        assert new_customer_json
-
-        new_customer_id = new_customer_json['id']
-
         # add random items to the order payload
         random_products = self.product_db.select_random_product(2)
         items = [{'product_id': product['ID'], 'quantity': random.randint(1, 10)} for product in random_products]
-        response_json = self.order_handler.create_order(payload={"line_items": items, 'customer_id': new_customer_id})
 
-        self.verify_order_created(response_json['id'], items)
+        customer_json = None
+        order_json = None
 
-        # delete the order and the new customer
-        self.customer_handler.delete_customer(new_customer_id)
-        self.order_handler.delete_order(response_json['id'])
-        assert not self.customer_db.select_customer_by_id(new_customer_id) and not self.order_db.select_order_by_order_id(response_json['id'])
+        try:
+            # create a new test customer for the order
+            customer_json = self.customer_handler.create_customer()
+            assert customer_json
+            order_json = self.order_handler.create_order(payload={"line_items": items,
+                                                                  'customer_id': customer_json['id']
+                                                                  })
+            assert order_json['customer_id'] == customer_json['id']
+            self.verify_order_created(order_json['id'], items)
+        except Exception:
+            logging.error(Exception)
+            pytest.fail()
+        finally:
+            # delete the test order and the test customer (if created)
+            if customer_json:
+                self.customer_handler.delete_customer(customer_json['id'])
+                assert not self.customer_db.select_customer_by_id(customer_json['id'])
+            if order_json:
+                self.order_handler.delete_order(order_json['id'])
+                assert not self.order_db.select_order_by_order_id(order_json['id'])
 
     def verify_order_created(self, order_id, expected_products):
         # assert order stored in database
-        assert self.order_db.select_order_by_order_id(order_id), logging.error(f"order: 'id'={order_id} not in database")
+        assert self.order_db.select_order_by_order_id(order_id), logging.error(
+            f"order: 'id'={order_id} not in database")
 
         # assert items
         db_order_products = self.order_db.select_order_products_by_order_id(order_id)

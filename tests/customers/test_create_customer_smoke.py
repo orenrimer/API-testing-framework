@@ -1,25 +1,27 @@
 import logging
 import pytest
-from src.db_handlers.customer_db import CustomerDB
-from src.request_handlers.customer_request import CustomerHandler
-from src.utils.genericUtils import generate_random_email_and_password
+from src.utils.genericUtils import generate_random_email
 
 pytestmark = [pytest.mark.customers, pytest.mark.smoke]
 
 
 class TestCreateCustomerSmoke:
     @pytest.fixture()
-    def setup(self):
-        self.customer_handler = CustomerHandler()
-        self.customer_db = CustomerDB()
+    def setup(self, customer_setup):
+        self.customer_handler,  self.customer_db = customer_setup
 
     @pytest.mark.tcid10
     def test_create_customer_email_and_password(self, setup):
         logging.info("TEST::create a new customer with email and password only")
 
         # generate random customer info
-        email, password = generate_random_email_and_password()
-        response_json = self.customer_handler.create_customer(email=email, password=password)
+        email = generate_random_email()
+        response_json = None
+        try:
+            response_json = self.customer_handler.create_customer(payload={'email': email})
+        except TypeError:
+            logging.error(TypeError)
+            pytest.fail()
 
         # assert API response
         assert response_json['email'] == email, logging.error(f"expected email: {email}, got {response_json['email']}")
@@ -45,6 +47,12 @@ class TestCreateCustomerSmoke:
             pytest.fail()
 
         email = customer_db[0]['user_email']
-        response_json = self.customer_handler.create_customer(email=email, expected_status_code=400)
+        response_json = None
+        try:
+            response_json = self.customer_handler.create_customer(payload={'email': email}, expected_status_code=400)
+        except TypeError:
+            logging.error(TypeError)
+            pytest.fail()
+
         assert 'code' in response_json and response_json['code'] == "registration-error-email-exists", \
             logging.error(f"excepted response code: registration-error-email-exists got {response_json['code']}")
