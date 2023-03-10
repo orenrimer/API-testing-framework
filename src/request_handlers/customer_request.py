@@ -3,8 +3,8 @@ from src.utils.requestUtils import RequestUtils
 
 
 class CustomerHandler:
-    def __init__(self):
-        self.requests = RequestUtils()
+    def __init__(self, base_url):
+        self.requests = RequestUtils(base_url)
 
     def create_customer(self, payload=None, expected_status_code=201):
         email = generate_random_email()

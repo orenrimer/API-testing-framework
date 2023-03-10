@@ -1,14 +1,13 @@
 import pymysql.cursors
-from config import DB_CONFIG
 from src.utils.credentialUtils import CredentialUtils
 
 
 class DbUtils:
-    def __init__(self):
+    def __init__(self, host, port, db):
+        self.host = host
+        self.port = port
+        self.db = db
         self.credentials = CredentialUtils.get_db_credentials()
-        self.host = DB_CONFIG['local']['host']
-        self.port = DB_CONFIG['local']['port']
-        self.db = DB_CONFIG['local']['database']
 
     def connect(self):
         connection = pymysql.connect(host=self.host,

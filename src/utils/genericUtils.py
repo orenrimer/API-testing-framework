@@ -1,8 +1,6 @@
 import json
-import os
 import random
 import string
-from config import PATH_CONFIG
 
 
 def generate_random_string(prefix=None, suffix=None, length=10):
@@ -14,29 +12,29 @@ def generate_random_string(prefix=None, suffix=None, length=10):
     return random_string
 
 
-def generate_random_email(domain=None, prefix=None):
+def generate_random_email(domain=None, prefix=None, length=10):
     if not domain:
         domain = 'gmail.com'
     if not prefix:
         prefix = "testuser"
 
-    email_length = 10
-    random_string = "".join(random.choices(string.ascii_lowercase, k=email_length))
+    random_string = "".join(random.choices(string.ascii_lowercase, k=length))
     random_email = prefix + '_' + random_string + '@' + domain
     return random_email
 
 
-def generate_random_password():
-    password_length = 16
-    password_string = "".join(random.choices(string.ascii_letters, k=password_length))
+def generate_random_password(length=10):
+    password_string = "".join(random.choices(string.ascii_letters, k=length))
     return password_string
 
 
-def read_data_from_json(file_name):
-    file_path = os.path.join(PATH_CONFIG['TEST_DATA'], file_name)
-
+def read_data_from_json(file_path):
     data = {}
-    with open(file_path) as f:
-        data.update(json.load(f))
+
+    try:
+        with open(file_path, 'r') as f:
+            data.update(json.load(f))
+    except IOError:
+        raise IOError(f"File '{file_path}' not found.")
 
     return data

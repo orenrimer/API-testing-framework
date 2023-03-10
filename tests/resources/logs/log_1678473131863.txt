@@ -1,0 +1,32 @@
+10/03/2023 20:32:11 :: test_create_customer_smoke.py:18  :: INFO :: TEST::create a new customer with email only
+10/03/2023 20:32:14 :: test_create_customer_smoke.py:38  :: INFO :: SUCCESS::create a new customer with an existing email
+10/03/2023 20:32:15 :: test_create_customer_smoke.py:50  :: INFO :: TEST::create a new customer with an existing email
+10/03/2023 20:32:15 :: test_create_customer_smoke.py:65  :: INFO :: SUCCESS::create a new customer with an existing email
+10/03/2023 20:32:15 :: test_get_customer_smoke.py:14  :: INFO :: TEST::get get existing customer
+10/03/2023 20:32:16 :: test_get_customer_smoke.py:25  :: INFO :: SUCCESS::get existing customer
+10/03/2023 20:32:16 :: test_get_customer_smoke.py:32  :: INFO :: TEST::get get non-existing customer
+10/03/2023 20:32:17 :: test_get_customer_smoke.py:47  :: INFO :: SUCCESS::get get non-existing customer
+10/03/2023 20:32:17 :: test_get_customer_smoke.py:54  :: INFO :: TEST::get all customers
+10/03/2023 20:32:18 :: test_get_customer_smoke.py:72  :: INFO :: SUCCESS::get all customers
+10/03/2023 20:32:18 :: test_create_order_smoke.py:20  :: INFO :: TEST::create an order with a guest account
+10/03/2023 20:32:21 :: test_create_order_smoke.py:36  :: INFO :: SUCCESS::create an order with a guest account
+10/03/2023 20:32:22 :: test_create_order_smoke.py:47  :: INFO :: TEST::create an order with a new user account
+10/03/2023 20:32:25 :: test_create_order_smoke.py:65  :: INFO :: SUCCESS::create an order with a new user account
+10/03/2023 20:32:26 :: test_update_order.py:21  :: INFO :: TEST:: update order status pending
+10/03/2023 20:32:28 :: test_update_order.py:36  :: INFO :: SUCCESS::update order status pending
+10/03/2023 20:32:29 :: test_update_order.py:21  :: INFO :: TEST:: update order status failed
+10/03/2023 20:32:32 :: test_update_order.py:36  :: INFO :: SUCCESS::update order status failed
+10/03/2023 20:32:32 :: test_update_order.py:21  :: INFO :: TEST:: update order status cancelled
+10/03/2023 20:32:34 :: test_update_order.py:36  :: INFO :: SUCCESS::update order status cancelled
+10/03/2023 20:32:35 :: test_update_order.py:21  :: INFO :: TEST:: update order status refunded
+10/03/2023 20:32:36 :: test_update_order.py:36  :: INFO :: SUCCESS::update order status refunded
+10/03/2023 20:32:37 :: test_update_order.py:21  :: INFO :: TEST:: update order status completed
+10/03/2023 20:32:40 :: test_update_order.py:36  :: INFO :: SUCCESS::update order status completed
+10/03/2023 20:32:41 :: test_update_order.py:21  :: INFO :: TEST:: update order status on-hold
+10/03/2023 20:32:44 :: test_update_order.py:36  :: INFO :: SUCCESS::update order status on-hold
+10/03/2023 20:32:44 :: test_create_product_smoke.py:19  :: INFO :: TEST::create a new product
+10/03/2023 20:32:47 :: test_create_product_smoke.py:42  :: INFO :: SUCCESS::create a new product
+10/03/2023 20:32:48 :: test_get_product_smoke.py:16  :: INFO :: TEST::get all new products (posted in the last 30 days)
+10/03/2023 20:32:50 :: test_get_product_smoke.py:34  :: INFO :: SUCCESS::get all new products (posted in the last 30 days)
+10/03/2023 20:32:50 :: test_update_product_smoke.py:16  :: INFO :: TEST::update product price
+10/03/2023 20:32:52 :: test_update_product_smoke.py:39  :: INFO :: SUCCESS::update product price

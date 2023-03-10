@@ -2,8 +2,8 @@ from src.utils.requestUtils import RequestUtils
 
 
 class OrderHandler:
-    def __init__(self):
-        self.requests = RequestUtils()
+    def __init__(self, base_url):
+        self.requests = RequestUtils(base_url)
 
     def get_order_by_id(self, order_id, expected_status_code=200):
         return self.requests.get(endpoint=f"orders/{order_id}", expected_status_code=expected_status_code)

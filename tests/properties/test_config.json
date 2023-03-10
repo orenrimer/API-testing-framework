@@ -1,0 +1,14 @@
+{
+    "HOST": {
+        "local":"http://localhost/wpdemostore/wp-json/wc/v3/",
+        "test":"",
+        "prod":""
+    },
+    "DB" : {
+        "local": {
+            "host": "localhost",
+            "database": "wpdemostore",
+            "port": 3306
+        }
+    }
+}

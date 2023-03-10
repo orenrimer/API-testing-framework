@@ -3,10 +3,10 @@ from src.utils.genericUtils import generate_random_string
 
 
 class ProductHandler:
-    def __init__(self):
-        self.requests = RequestUtils()
+    def __init__(self, base_url):
+        self.requests = RequestUtils(base_url)
 
-    def create_product(self, payload=None):
+    def create_product(self, payload=None, expected_status_code=201):
         name = generate_random_string(prefix='product')
 
         if payload:
@@ -17,7 +17,7 @@ class ProductHandler:
         else:
             # we must pass a product name when creating a new product
             payload = {"name": name}
-        product_json = self.requests.post(endpoint='products', payload=payload)
+        product_json = self.requests.post(endpoint='products', payload=payload, expected_status_code=expected_status_code)
         return product_json
 
     def get_product_by_id(self, product_id):
