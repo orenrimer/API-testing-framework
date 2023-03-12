@@ -8,8 +8,9 @@ pytestmark = [pytest.mark.products, pytest.mark.smoke]
 
 class TestGetProductSmoke:
     @pytest.fixture()
-    def setup(self, product_setup):
-        self.product_handler, self.products_db = product_setup
+    def setup(self, m_setup):
+        self.request_handler, _, _, self.products_db = m_setup
+        self.endpoint = "products"
 
     @pytest.mark.tcid24
     def test_get_filter_new_products(self, setup):
@@ -18,7 +19,7 @@ class TestGetProductSmoke:
         after_date = (datetime.now().replace(microsecond=0) - timedelta(days=30)).isoformat()
         try:
             # get all products published after the given date
-            products_json = self.product_handler.get_products(after=after_date)
+            products_json = self.request_handler.get_all(endpoint=self.endpoint, after=after_date)
             # get the id's of the returned products
             products_json_id = sorted([product['id'] for product in products_json])
 
@@ -29,7 +30,8 @@ class TestGetProductSmoke:
 
             # compare products id's
             for idx, product in enumerate(products_json_id):
-                assert idx < len(db_products_ids) and product == db_products_ids[idx], logging.error(f"product: 'id'={product} not found in database")
+                assert idx < len(db_products_ids) and product == db_products_ids[idx], \
+                    logging.error(f"product: 'id'={product} not found in database")
 
             logging.info("SUCCESS::get all new products (posted in the last 30 days)")
         except Exception as e:

@@ -6,8 +6,9 @@ pytestmark = [pytest.mark.customers, pytest.mark.smoke]
 
 class TestGetCustomerSmoke:
     @pytest.fixture()
-    def setup(self, customer_setup):
-        self.customer_handler, self.customer_db = customer_setup
+    def setup(self, m_setup):
+        self.request_handler, self.customer_db, _, _ = m_setup
+        self.endpoint = "customers"
 
     @pytest.mark.tcid12
     def test_get_existing_customer(self, setup):
@@ -19,7 +20,7 @@ class TestGetCustomerSmoke:
                 raise Exception("No customers found in database.")
 
             customer_id = customer_db[0]['ID']
-            response_json = self.customer_handler.get_customer_by_id(customer_id)
+            response_json = self.request_handler.get_by_id(self.endpoint, customer_id)
             assert response_json['id'] == customer_id, logging.error(f"Invalid response. expected customer 'id': {customer_id} "
                                                                      f"got {response_json['id']}")
             logging.info("SUCCESS::get existing customer")
@@ -40,7 +41,7 @@ class TestGetCustomerSmoke:
 
             # incrementing the last customer ID result in a non-existing customer ID
             customer_id = customer_db[0]['ID'] + 1
-            response_json = self.customer_handler.get_customer_by_id(customer_id, expected_status_code=404)
+            response_json = self.request_handler.get_by_id(self.endpoint, customer_id, expected_status_code=404)
             assert 'code' in response_json and response_json['code'] == "woocommerce_rest_invalid_id", \
                 logging.error(f"Invalid response, expected response code 'woocommerce_rest_invalid_id'")
 
@@ -54,7 +55,7 @@ class TestGetCustomerSmoke:
         logging.info("TEST::get all customers")
 
         try:
-            response_json = self.customer_handler.get_customers()
+            response_json = self.request_handler.get_all(self.endpoint)
 
             # get the id's of the returned customers
             customers_id = sorted([customer['id'] for customer in response_json])

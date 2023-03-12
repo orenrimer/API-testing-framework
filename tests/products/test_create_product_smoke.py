@@ -11,8 +11,9 @@ pytestmark = [pytest.mark.products, pytest.mark.smoke]
 
 class TestCreateProduct:
     @pytest.fixture()
-    def setup(self, product_setup):
-        self.product_handler, self.product_db = product_setup
+    def setup(self, m_setup):
+        self.request_handler, _, _, self.product_db = m_setup
+        self.endpoint = "products"
 
     @pytest.mark.tcid23
     def test_create_product(self, setup):
@@ -25,7 +26,7 @@ class TestCreateProduct:
             payload = read_data_from_json(file_path)
 
             # create test product
-            product_json = self.product_handler.create_product(payload=payload)
+            product_json = self.request_handler.create(endpoint=self.endpoint, payload=payload)
 
             # asert response
             assert product_json['name'] == payload['name'], logging.error(f"expected name: {payload['name']}, "
@@ -45,4 +46,4 @@ class TestCreateProduct:
             pytest.fail()
         finally:
             # delete test product
-            self.product_handler.delete_product(product_json['id'])
+            self.request_handler.delete(self.endpoint, product_json['id'])

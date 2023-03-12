@@ -10,44 +10,26 @@ class RequestUtils:
         self.auth = OAuth1(client_key=CredentialUtils.get_wc_api_credentials()['key'],
                            client_secret=CredentialUtils.get_wc_api_credentials()['secret'])
 
-    @staticmethod
-    def validate_status_code(status_code, expected_status_code, response_json):
-        if status_code != expected_status_code:
-            raise Exception(f"Invalid response. expected status {expected_status_code}, "
-                            f"got {status_code}.\nresponse body: {response_json}")
-
-    def get(self, endpoint, payload=None, expected_status_code=200):
+    def get(self, endpoint, payload=None):
         url = self.base_url + endpoint
         response = requests.get(url=url, data=json.dumps(payload),
                                 headers={'Content-Type': 'application/json'}, auth=self.auth)
-        status_code = response.status_code
-        response_json = response.json()
-        self.validate_status_code(status_code, expected_status_code,response_json)
-        return response_json
+        return response
 
-    def post(self, endpoint, payload=None, expected_status_code=201):
+    def post(self, endpoint, payload=None):
         url = self.base_url + endpoint
         response = requests.post(url=url, data=json.dumps(payload),
                                  headers={'Content-Type': 'application/json'}, auth=self.auth)
-        status_code = response.status_code
-        response_json = response.json()
-        self.validate_status_code(status_code, expected_status_code, response_json)
-        return response_json
+        return response
 
-    def put(self, endpoint, payload=None, expected_status_code=200):
+    def put(self, endpoint, payload=None):
         url = self.base_url + endpoint
         response = requests.put(url=url, data=json.dumps(payload),
                                 headers={'Content-Type': 'application/json'}, auth=self.auth)
-        status_code = response.status_code
-        response_json = response.json()
-        self.validate_status_code(status_code, expected_status_code, response_json)
-        return response_json
+        return response
 
-    def delete(self, endpoint, payload=None, expected_status_code=200):
+    def delete(self, endpoint, payload=None):
         url = self.base_url + endpoint
         response = requests.delete(url=url, data=json.dumps(payload),
                                    headers={'Content-Type': 'application/json'}, auth=self.auth)
-        status_code = response.status_code
-        response_json = response.json()
-        self.validate_status_code(status_code, expected_status_code, response_json)
-        return response_json
+        return response

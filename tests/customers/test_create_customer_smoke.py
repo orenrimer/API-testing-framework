@@ -9,8 +9,9 @@ pytestmark = [pytest.mark.customers, pytest.mark.smoke]
 
 class TestCreateCustomerSmoke:
     @pytest.fixture()
-    def setup(self, customer_setup):
-        self.customer_handler, self.customer_db = customer_setup
+    def setup(self, m_setup):
+        self.request_handler, self.customer_db, _, _ = m_setup
+        self.endpoint = "customers"
 
     @pytest.mark.tcid10
     @pytest.mark.poitive
@@ -22,10 +23,11 @@ class TestCreateCustomerSmoke:
             # read test date from file
             file_path = path.join(DIRS['TEST_DATA'], "create_customer_payload.json")
             payload = read_data_from_json(file_path)
-            response_json = self.customer_handler.create_customer(payload=payload)
+            response_json = self.request_handler.create(endpoint=self.endpoint, payload=payload)
             # assert API response
-            assert response_json['email'] == payload['email'], logging.error(f"Invalid response, expected email: {payload['email']},"
-                                                                             f" got {response_json['email']}")
+            assert response_json['email'] == payload['email'], logging.error(
+                f"Invalid response, expected email: {payload['email']},"
+                f" got {response_json['email']}")
 
             assert response_json['first_name'] == payload['first_name'], logging.error(
                 "Invalid response, expected email: {payload['email']} got {response_json['email']}")
@@ -42,7 +44,7 @@ class TestCreateCustomerSmoke:
         finally:
             # delete test customer
             if response_json:
-                self.customer_handler.delete_customer(response_json['id'])
+                self.request_handler.delete(self.endpoint, response_json['id'])
 
     @pytest.mark.tcid11
     @pytest.mark.negetive
@@ -56,7 +58,8 @@ class TestCreateCustomerSmoke:
                 raise Exception("No customer found in database")
 
             email = customer_db[0]['user_email']
-            response_json = self.customer_handler.create_customer(payload={'email': email}, expected_status_code=400)
+            response_json = self.request_handler.create(endpoint=self.endpoint,
+                                                        payload={'email': email}, expected_status_code=400)
             # assert response
             assert 'code' in response_json and response_json['code'] == "registration-error-email-exists", \
                 logging.error(f"Invalid response, "

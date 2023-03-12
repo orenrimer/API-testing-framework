@@ -2,14 +2,14 @@ import random
 import pytest
 import logging
 
-
 pytestmark = [pytest.mark.products, pytest.mark.smoke]
 
 
 class TestUpdateProductSmoke:
     @pytest.fixture()
-    def setup(self, product_setup):
-        self.product_handler, self.product_db = product_setup
+    def setup(self, m_setup):
+        self.request_handler, _, _, self.product_db = m_setup
+        self.endpoint = "products"
 
     @pytest.mark.tcid25
     def test_update_product_price(self, setup):
@@ -20,12 +20,12 @@ class TestUpdateProductSmoke:
 
         try:
             # create a test product
-            product_json = self.product_handler.create_product()
+            product_json = self.request_handler.create(self.endpoint)
             assert product_json['price'] == ""
 
             # update the product price
-            product_json = self.product_handler.update_product(product_id=product_json['id'],
-                                                               payload={'regular_price': str(new_price)})
+            product_json = self.request_handler.update(self.endpoint, product_json['id'],
+                                                       payload={'regular_price': str(new_price)})
 
             # assert price updated in response
             assert int(product_json['price']) == new_price, logging.error(f"Invalid price, expected {new_price},"
@@ -43,4 +43,4 @@ class TestUpdateProductSmoke:
         finally:
             if product_json:
                 # delete test product
-                self.product_handler.delete_product(product_json['id'])
+                self.request_handler.delete(self.endpoint, product_json['id'])

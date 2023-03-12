@@ -3,17 +3,15 @@ import random
 from os import path
 import pytest
 from settings import DIRS
-from src.utils.genericUtils import read_data_from_json
+from src.utils.genericUtils import read_data_from_json, generate_random_email
 
 pytestmark = [pytest.mark.orders, pytest.mark.smoke]
 
 
 class TestCreateOrdersSmoke:
     @pytest.fixture()
-    def setup(self, order_setup, product_setup, customer_setup):
-        self.order_handler, self.order_db = order_setup
-        _, self.product_db = product_setup
-        self.customer_handler, self.customer_db = customer_setup
+    def setup(self, m_setup):
+        self.request_handler, self.customer_db, self.order_db, self.product_db = m_setup
 
     @pytest.mark.tcid15
     def test_create_order_as_guest(self, setup):
@@ -30,7 +28,7 @@ class TestCreateOrdersSmoke:
             items = [{'product_id': product['ID'], 'quantity': random.randint(1, 10)} for product in random_products]
             payload.update({"line_items": items})
 
-            response_json = self.order_handler.create_order(payload=payload)
+            response_json = self.request_handler.create(endpoint="orders", payload=payload)
             # verify order and products
             self.verify_order_created(response_json['id'], items)
             logging.info("SUCCESS::create an order with a guest account")
@@ -40,7 +38,7 @@ class TestCreateOrdersSmoke:
         finally:
             # delete the test order
             if response_json:
-                self.order_handler.delete_order(response_json['id'])
+                self.request_handler.delete("orders", response_json['id'])
 
     @pytest.mark.tcid16
     def test_create_order_with_new_user(self, setup):
@@ -55,11 +53,11 @@ class TestCreateOrdersSmoke:
             items = [{'product_id': product['ID'], 'quantity': random.randint(1, 10)} for product in random_products]
 
             # create a new test customer for the order
-            customer_json = self.customer_handler.create_customer()
+            customer_json = self.request_handler.create(endpoint="customers",
+                                                        payload={'email': generate_random_email()})
             assert customer_json
-            order_json = self.order_handler.create_order(payload={"line_items": items,
-                                                                  'customer_id': customer_json['id']
-                                                                  })
+            order_json = self.request_handler.create(endpoint="orders",
+                                                     payload={"line_items": items, 'customer_id': customer_json['id']})
             assert order_json['customer_id'] == customer_json['id']
             self.verify_order_created(order_json['id'], items)
             logging.info("SUCCESS::create an order with a new user account")
@@ -69,9 +67,9 @@ class TestCreateOrdersSmoke:
         finally:
             # delete the test order and the test customer (if created)
             if customer_json:
-                self.customer_handler.delete_customer(customer_json['id'])
+                self.request_handler.delete("customers", customer_json['id'])
             if order_json:
-                self.order_handler.delete_order(order_json['id'])
+                self.request_handler.delete("orders", order_json['id'])
 
     def verify_order_created(self, order_id, expected_products):
         # assert order stored in database

@@ -6,8 +6,9 @@ pytestmark = [pytest.mark.orders, pytest.mark.regression]
 
 class TestUpdateOrderSmoke:
     @pytest.fixture()
-    def setup(self, order_setup):
-        self.order_handler, self.order_db = order_setup
+    def setup(self, m_setup):
+        self.request_handler, _,  self.order_db, _ = m_setup
+        self.endpoint = "orders"
 
     @pytest.mark.parametrize("new_status",
                              [pytest.param('pending', marks=pytest.mark.tcid17),
@@ -24,10 +25,10 @@ class TestUpdateOrderSmoke:
 
         try:
             # create new order
-            order_json = self.order_handler.create_order()
+            order_json = self.request_handler.create(endpoint=self.endpoint)
             assert order_json['status'] == 'pending'
             # update the status
-            self.order_handler.update_order(order_id=order_json['id'], payload={'status': new_status})
+            self.request_handler.update(endpoint=self.endpoint, id=order_json['id'], payload={'status': new_status})
             # check status changed in database
             db_status = self.order_db.select_order_status(order_json['id'])[0]
             assert db_status['status'] == new_status, logging.error("failed to update order's status. "
@@ -37,4 +38,4 @@ class TestUpdateOrderSmoke:
             pytest.fail()
         finally:
             if order_json:
-                self.order_handler.delete_order(order_json['id'])
+                self.request_handler.delete(self.endpoint, order_json['id'])
