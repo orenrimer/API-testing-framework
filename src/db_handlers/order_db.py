@@ -10,38 +10,39 @@ class OrderDB:
 
     def select_order_by_order_id(self, order_id):
         """
-            select an order from the db using a given order id
+        select an order from the db using a given order id
         """
-        sql = f"SELECT * FROM {self.ORDER_TABLE_NAME} WHERE order_id={order_id};"
-        return self.db.select(sql)
+        return self.db.select([self.ORDER_TABLE_NAME], where=f"order_id={order_id}")
 
     def select_order_status(self, order_id):
         """
-            select an order from the db using a given customer id
+        select an order from the db using a given customer id
         """
-        sql = f"SELECT * FROM {self.ORDER_STATS_TABLE_NAME} WHERE order_id={order_id};"
-        return self.db.select(sql)
+        return self.db.select(
+            [self.ORDER_STATS_TABLE_NAME],
+            where=f"order_id={order_id}",
+        )
 
     def select_order_products_by_order_id(self, order_id):
         """
-            select all the products that have been purchased in a given order
+        select all the products that have been purchased in a given order
         """
-        sql = f"SELECT * " \
-              f"FROM {self.ORDER_TABLE_NAME} natural join {self.ORDER_ITEMS_TABLE_NAME} " \
-              f"WHERE order_id={order_id} and order_item_type='line_item';"
-        data = self.db.select(sql)
+        data = self.db.select(
+            [self.ORDER_TABLE_NAME, self.ORDER_ITEMS_TABLE_NAME],
+            where=f"{self.ORDER_TABLE_NAME}.order_item_id = {self.ORDER_ITEMS_TABLE_NAME}.order_item_id and order_id={order_id} and order_item_type='line_item'",
+        )
 
         items = {}
         for d in data:
-            if d['order_item_id'] not in items:
-                items[d['order_item_id']] = {}
+            if d["order_item_id"] not in items:
+                items[d["order_item_id"]] = {}
 
-            if d['meta_key'] == "_product_id":
-                items[d['order_item_id']].update({"id": d['meta_value']})
-            elif d['meta_key'] == "_qty":
-                items[d['order_item_id']].update({"quantity": d['meta_value']})
+            if d["meta_key"] == "_product_id":
+                items[d["order_item_id"]].update({"id": d["meta_value"]})
+            elif d["meta_key"] == "_qty":
+                items[d["order_item_id"]].update({"quantity": d["meta_value"]})
 
         res = {}
         for item in items.values():
-            res[int(item['id'])] = int(item['quantity'])
+            res[int(item["id"])] = int(item["quantity"])
         return res

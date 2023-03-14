@@ -1,5 +1,6 @@
-import pymysql.cursors
+from sqlalchemy import create_engine, MetaData, Table, desc, text, join
 from src.utils.credentialUtils import CredentialUtils
+from sqlalchemy.sql import select
 
 
 class DbUtils:
@@ -10,23 +11,33 @@ class DbUtils:
         self.credentials = CredentialUtils.get_db_credentials()
 
     def connect(self):
-        connection = pymysql.connect(host=self.host,
-                                     user=self.credentials['user'],
-                                     password=self.credentials['password'],
-                                     db=self.db,
-                                     port=self.port)
-        return connection
+        url = f'mysql+pymysql://{self.credentials["user"]}:{self.credentials["password"]}@{self.host}/{self.db}'
+        engine = create_engine(url)
+        return engine
 
-    def select(self, sql):
-        connection = self.connect()
+    def select(self, tables, where=None, order_by=None, limit=None):
+        engine = self.connect()
+
         try:
-            cursor = connection.cursor(pymysql.cursors.DictCursor)
-            cursor.execute(sql)
-            response = cursor.fetchall()
-            cursor.close()
-        except Exception as e:
-            raise Exception(f"Failed running query '{sql}'\nError: {str(e)}")
-        finally:
-            connection.close()
+            metadata = MetaData()
+            metadata.reflect(engine, schema=self.db)
 
-        return response
+            table_objs = [
+                Table(table_name, metadata, autoload_with=engine)
+                for table_name in tables
+            ]
+            query = select(*table_objs)
+            if where:
+                query = query.where(text(where))
+            if order_by:
+                query = query.order_by(desc(order_by))
+            if limit:
+                query = query.limit(limit)
+
+            with engine.connect() as connection:
+                cursor_result = connection.execute(query)
+                keys = cursor_result.keys()
+                res = cursor_result.fetchall()
+                return [dict(zip(keys, list(r))) for r in res]
+        except Exception as e:
+            raise Exception(f"Failed running query\nError: {str(e)}")

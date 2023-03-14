@@ -16,7 +16,7 @@ def config():
     load_dotenv()
 
     # read config file
-    config_path = join(DIRS['TEST'], "properties", "test_config.json")
+    config_path = join(DIRS["TEST"], "properties", "test_config.json")
     data = read_data_from_json(config_path)
 
     # add logger configuration
@@ -26,16 +26,22 @@ def config():
 
 @pytest.fixture(scope="session")
 def m_setup(config):
-    request = RequestHandler(config['HOST']['local'])
-    customer_db = CustomerDB(config['DB']['local']['host'],
-                             config['DB']['local']['port'],
-                             config['DB']['local']['database'])
+    request = RequestHandler(config["HOST"]["local"])
+    customer_db = CustomerDB(
+        config["DB"]["local"]["host"],
+        config["DB"]["local"]["port"],
+        config["DB"]["local"]["database"],
+    )
 
-    order_db = OrderDB(config['DB']['local']['host'],
-                       config['DB']['local']['port'],
-                       config['DB']['local']['database'])
+    order_db = OrderDB(
+        config["DB"]["local"]["host"],
+        config["DB"]["local"]["port"],
+        config["DB"]["local"]["database"],
+    )
 
-    product_db = ProductDB(config['DB']['local']['host'],
-                           config['DB']['local']['port'],
-                           config['DB']['local']['database'])
+    product_db = ProductDB(
+        config["DB"]["local"]["host"],
+        config["DB"]["local"]["port"],
+        config["DB"]["local"]["database"],
+    )
     return request, customer_db, order_db, product_db
