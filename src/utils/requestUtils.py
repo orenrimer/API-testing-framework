@@ -12,42 +12,50 @@ class RequestUtils:
             client_secret=CredentialUtils.get_wc_api_credentials()["secret"],
         )
 
-    def get(self, endpoint, payload=None):
+    def get(self, endpoint, headers=None, payload=None):
+        if not headers:
+            headers = {"Content-Type": "application/json"}
         url = self.base_url + endpoint
         response = requests.get(
             url=url,
             data=json.dumps(payload),
-            headers={"Content-Type": "application/json"},
+            headers=headers,
             auth=self.auth,
         )
         return response
 
-    def post(self, endpoint, payload=None):
+    def post(self, endpoint, headers=None, payload=None):
+        if not headers:
+            headers = {"Content-Type": "application/json"}
         url = self.base_url + endpoint
         response = requests.post(
             url=url,
             data=json.dumps(payload),
-            headers={"Content-Type": "application/json"},
+            headers=headers,
             auth=self.auth,
         )
         return response
 
-    def put(self, endpoint, payload=None):
+    def put(self, endpoint, headers=None, payload=None):
+        if not headers:
+            headers = {"Content-Type": "application/json"}
         url = self.base_url + endpoint
         response = requests.put(
             url=url,
             data=json.dumps(payload),
-            headers={"Content-Type": "application/json"},
+            headers=headers,
             auth=self.auth,
         )
         return response
 
-    def delete(self, endpoint, payload=None):
+    def delete(self, endpoint, headers=None, payload=None):
+        if not headers:
+            headers = {"Content-Type": "application/json"}
         url = self.base_url + endpoint
         response = requests.delete(
             url=url,
             data=json.dumps(payload),
-            headers={"Content-Type": "application/json"},
+            headers=headers,
             auth=self.auth,
         )
         return response
